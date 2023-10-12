@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  title: BetterLife API
+  description: |-
+    The BetterLife API is based on the OpenAPI 3.0 specification. Included within this specification are endpoints to retrieve 
+    analytics regarding user and meeting activity and enable video meeting creation.
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: Kaizen@csus.edu
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+servers:
+  - url: https://BetterLife.Meet.io/api/v3
+# Logical grouping of operations according to resource
+tags:
+  - name: Application Analytics
+    description: Exposes user and meeting analytics from BetterLifeMeet application
+  - name: Meeting Creation
+    description: Provides API functionality to create/update/delete meetings as well as additional features
+paths:
+  # Pod info paths
+  /analytics/customers:
+    # API call type
+    get:
+      # tag for which endpoint is associated with (ie. Application analytics or Meeting Creation)
+      tags:
+        - pet
+      summary: Retrieve customer information
+      description: Retrieve customer informations
+      # unique identifier for operation
+      operationId: getCustomers
+      # parameters associated with API call (for "GET all" operations parameters would be used to enable "search" functionality)
+      parameters:
+        - name: isActive
+          in: query
+          description: Boolean valaue for customers with active subscriptions
+          required: false
+          schema:
+            type: boolean
+      # Response codes and associated return schemas
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/"
+        "400":
+          description: Bad Request
+        "401":
+          description: Not Authorized
+        "500":
+          description: Bad request
+      # Auth permissions required for path
+      security:
+        - betterlifemeet_auth:
+            - read:analytics
+components:
+  # reusable schema objects (object definitions like Customer, Pod, Error Codes, etc)
+  schemas:
+    Customer:
+      type: object
+      properties:
+
+  # Request body schema for POST Operations
+  requestBodies:
+
+  # security schema associated with the various operations (can include different scopes for read/write operations)
+  securitySchemes:
+    betterlifemeet_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://betterlife.meet/oauth/authorize
+          scopes:
+            read:analytics: read application analytics
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
