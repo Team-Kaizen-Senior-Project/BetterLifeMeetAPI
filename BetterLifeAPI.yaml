@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/"
+                $ref: "#/components/schemas/Customer"
         "400":
           description: Bad Request
         "401":
@@ -63,10 +63,12 @@ components:
     Customer:
       type: object
       properties:
+        name:
+          type: string
+          description: Customer name
+          example: John Smith
 
   # Request body schema for POST Operations
-  requestBodies:
-
   # security schema associated with the various operations (can include different scopes for read/write operations)
   securitySchemes:
     betterlifemeet_auth:
