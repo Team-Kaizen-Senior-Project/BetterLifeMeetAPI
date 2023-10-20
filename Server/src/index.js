@@ -1,6 +1,7 @@
 const app = require("express")();
 const env = require("dotenv").config();
 const faunadb = require("faunadb");
+const { initializeMediaSoup, getWorker, getRouter} = require('./config/mediasoup');
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
@@ -56,5 +57,15 @@ app.post("/customer", async (req, res) => {
 
   res.send(doc);
 });
+
+// Initialize MediaSoup
+initializeMediaSoup()
+  .then(() => {
+    const worker = getWorker();
+    const router = getRouter();
+  })
+  .catch(error => {
+    console.error('Failed to initialize MediaSoup:', error);
+  });
 
 app.listen(4000, () => console.log("API on http://localhost:4000"));
