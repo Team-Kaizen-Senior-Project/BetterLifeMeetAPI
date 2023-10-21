@@ -2,6 +2,7 @@ const app = require("express")();
 const env = require("dotenv").config();
 const faunadb = require("faunadb");
 const { initializeMediaSoup, getWorker, getRouter} = require('./config/mediasoup');
+const webrtcController = require('./controllers/webrtcController');
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
@@ -58,14 +59,29 @@ app.post("/customer", async (req, res) => {
   res.send(doc);
 });
 
+let router;
 // Initialize MediaSoup
 initializeMediaSoup()
   .then(() => {
     const worker = getWorker();
-    const router = getRouter();
+    router = getRouter();
   })
   .catch(error => {
     console.error('Failed to initialize MediaSoup:', error);
+  });
+
+  // Initializes a new WebRTC transport and returns its parameters.
+  // This endpoint takes no input payload.
+  // It returns a JSON object containing WebRTC transport parameters such as:
+  // - id: The transport ID
+  // - iceParameters: The ICE parameters for the transport
+  // - iceCandidates: The ICE candidates for the transport
+  // - dtlsParameters: The DTLS parameters for the transport
+  app.post('/initWebRtcTransport', async (req, res) => {
+    if (!router) {
+      return res.status(500).json({ error: "Router is not initialized" });
+    }
+    await webrtcController.initWebRtcTransport(req, res, router);
   });
 
 app.listen(4000, () => console.log("API on http://localhost:4000"));

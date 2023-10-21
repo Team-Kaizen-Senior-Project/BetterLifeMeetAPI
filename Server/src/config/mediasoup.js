@@ -41,23 +41,7 @@ const initializeMediaSoup = async () => {
       console.error('Failed to initialize mediasoup:', error);
     }
   };
-/*
-// Initialize worker
-const worker = mediasoup.createWorker({
-});
-console.log('mediasoup Worker created');
-// Initialize router
-let router;
-worker.on('died', () => {
-  console.error('mediasoup Worker died, exiting in a few seconds...');
-  setTimeout(() => process.exit(1), 2000);
-});
 
-worker.on('succeeded', async () => {
-  router = await worker.createRouter({ mediaCodecs });
-  console.log('mediasoup Router created');
-});
-*/
 module.exports = {
     initializeMediaSoup,
     getWorker: () => worker,
