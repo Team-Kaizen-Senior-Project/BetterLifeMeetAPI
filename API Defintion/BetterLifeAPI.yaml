@@ -1,0 +1,263 @@
+openapi: 3.0.3
+info:
+  title: BetterLife API
+  description: |-
+    The BetterLife API is based on the OpenAPI 3.0 specification. Included within this specification are endpoints to retrieve 
+    analytics regarding user and meeting activity and enable video meeting creation.
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: Kaizen@csus.edu
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+servers:
+  - url: https://BetterLife.Meet.io/api/v3
+# Logical grouping of operations according to resource
+tags:
+  - name: Application Analytics
+    description: Exposes user and meeting analytics from BetterLifeMeet application
+  - name: Meeting Creation
+    description: Provides API functionality to create/update/delete meetings as well as additional features
+paths:
+  # Pod info paths
+  /analytics/customers:
+    # API call type
+    get:
+      # tag for which endpoint is associated with (ie. Application analytics or Meeting Creation)
+      tags:
+        - Application Analytics
+      summary: Retrieve all customers' information
+      description: Retrieve all customers' informations
+      # unique identifier for operation
+      operationId: getCustomers
+      # parameters associated with API call (for "GET all" operations parameters would be used to enable "search" functionality)
+      parameters:
+        - name: isActive
+          in: query
+          description: Boolean valaue for customers with active subscriptions
+          required: false
+          schema:
+            type: boolean
+
+      # Response codes and associated return schemas
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotAuthorized"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerError"
+      # Auth permissions required for path
+      security:
+        - betterlifemeet_auth:
+            - read:analytics
+  /analytics/customers/{customerid}:
+    # API call type
+    get:
+      # tag for which endpoint is associated with (ie. Application analytics or Meeting Creation)
+      tags:
+        - Application Analytics
+      summary: Retrieve a particular customer's information
+      description: Retrieve a particular customer's' informations
+      # unique identifier for operation
+      operationId: getCustomer
+      # parameters associated with API call (for "GET all" operations parameters would be used to enable "search" functionality)
+      parameters:
+        - name: customerId
+          in: path
+          description: Boolean value for customers with active subscriptions
+          required: true
+          schema:
+            type: boolean
+
+      # Response codes and associated return schemas
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotAuthorized"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerError"
+      # Auth permissions required for path
+      security:
+        - betterlifemeet_auth:
+            - read:analytics
+components:
+  # reusable schema objects (object definitions like Customer, Pod, Error Codes, etc)
+  schemas:
+    Customer:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Customer name
+          example: John Smith
+        email:
+          type: string
+          description: Customer's email
+          example: johnSmith@gmail.com
+        netWorth:
+          type: integer
+          description: Customer's net worth
+          example: 450000
+        activeSubscription:
+          type: boolean
+          description: Describles whether a customer has an active subscriptions
+          example: true
+    Pod:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Pod name
+          example: Pod 11
+        leader:
+          type: string
+          description: Leader of a Pod
+          example: Fred Thomas
+        members:
+          type: array
+          description: Denotes the customers as member of a Pod
+          items:
+            $ref: "#/components/schemas/Customer"
+        meetings:
+          type: array
+          description: Pod members
+          items:
+            $ref: "#/components/schemas/Meeting"
+    Attendee:
+      type: object
+      properties:
+        joinTime:
+          type: string
+          format: date-time
+          example: "2023-10-12T08:30:45Z"
+        leaveTime:
+          type: string
+          format: date-time
+          example: "2023-10-12T08:45:56Z"
+        usedVideo:
+          type: boolean
+          description: Denotes whether an Attendee utilized their video
+          example: true
+        platform:
+          type: string
+          description: States the device an Attendee used to connect to the call
+          example: Desktop/PC
+        CustomerRef:
+          $ref: "#/components/schemas/Customer"
+        # Included based on feedback from client
+        ErrorLog:
+          $ref: "#/components/schemas/ErrorLog"
+    Meeting:
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          example: "2023-10-12T08:45:56Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2023-10-12T08:45:56Z"
+        attendees:
+          type: array
+          description: attendees that are apart of the meeting
+          items:
+            $ref: "#/components/schemas/Attendee"
+    Error:
+      properties:
+        peripheral:
+          type: string
+          example: Video
+        description:
+          type: string
+          example: Video device found, failed to initiate
+    ErrorLog:
+      properties:
+        ErrorLog:
+          type: array
+          description: Logs the error a user encountered during the meeting
+          items:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      properties:
+        StatusCode:
+          type: integer
+          example: 403
+        message:
+          type: string
+          example: Bad Request
+    NotAuthorized:
+      properties:
+        StatusCode:
+          type: integer
+          example: 401
+        message:
+          type: string
+          example: Not Authorized
+    ServerError:
+      properties:
+        StatusCode:
+          type: integer
+          example: 500
+        message:
+          type: string
+          example: Server Error
+
+  # Request body schema for POST Operations
+  # security schema associated with the various operations (can include different scopes for read/write operations)
+  securitySchemes:
+    betterlifemeet_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://betterlife.meet/oauth/authorize
+          scopes:
+            read:analytics: read application analytics
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
