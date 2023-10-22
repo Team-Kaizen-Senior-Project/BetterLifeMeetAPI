@@ -71,12 +71,6 @@ initializeMediaSoup()
   });
 
   // Initializes a new WebRTC transport and returns its parameters.
-  // This endpoint takes no input payload.
-  // It returns a JSON object containing WebRTC transport parameters such as:
-  // - id: The transport ID
-  // - iceParameters: The ICE parameters for the transport
-  // - iceCandidates: The ICE candidates for the transport
-  // - dtlsParameters: The DTLS parameters for the transport
   app.post('/initWebRtcTransport', async (req, res) => {
     if (!router) {
       return res.status(500).json({ error: "Router is not initialized" });
